@@ -64,15 +64,35 @@ pipeline {
                 }
             }
         }
+
+        stage('Deploy to Kubernetes') {
+            steps {
+                sh '''
+                    export KUBECONFIG=/var/lib/jenkins/.kube/config
+
+                    kubectl apply -f k8s/deployment.yaml
+                    kubectl apply -f k8s/service.yaml
+
+                    kubectl set image deployment/telegram-bot \
+                      telegram-bot=${DOCKER_IMAGE}:${BUILD_NUMBER}
+
+                    kubectl rollout status deployment/telegram-bot \
+                      --timeout=120s
+
+                    kubectl get pods
+                    kubectl get services
+                '''
+            }
+        }
     }
 
     post {
         success {
-            echo 'CI pipeline completed successfully!'
+            echo 'CI/CD pipeline completed successfully!'
         }
 
         failure {
-            echo 'CI pipeline failed. Check the Jenkins console output.'
+            echo 'CI/CD pipeline failed. Check the Jenkins console output.'
         }
 
         always {
