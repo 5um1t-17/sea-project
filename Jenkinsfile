@@ -77,7 +77,7 @@ pipeline {
                       telegram-bot=${DOCKER_IMAGE}:${BUILD_NUMBER}
 
                     kubectl rollout status deployment/telegram-bot \
-                      --timeout=120s
+                      --timeout=240s
 
                     kubectl get pods
                     kubectl get services
